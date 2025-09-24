@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | RoomTourRiskProf</title>
+    <title>Unity Web Player | RiskProf-Web</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
@@ -20,7 +20,7 @@
       <div id="unity-footer">
         <div id="unity-logo-title-footer"></div>
         <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">RoomTourRiskProf</div>
+        <div id="unity-build-title">RiskProf-Web</div>
       </div>
     </div>
     <script>
@@ -55,14 +55,20 @@
       var loaderUrl = buildUrl + "/test.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/test.data.unityweb",
-        frameworkUrl: buildUrl + "/test.framework.js.unityweb",
-        codeUrl: buildUrl + "/test.wasm.unityweb",
+        dataUrl: buildUrl + "/test.data",
+        frameworkUrl: buildUrl + "/test.framework.js",
+        codeUrl: buildUrl + "/test.wasm",
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "RoomTourRiskProf",
+        companyName: "OOO_CYROBZ",
+        productName: "RiskProf-Web",
         productVersion: "0.1",
         showBanner: unityShowBanner,
+        // errorHandler: function(err, url, line) {
+        //    alert("error " + err + " occurred at line " + line);
+        //    // Return 'true' if you handled this error and don't want Unity
+        //    // to process it further, 'false' otherwise.
+        //    return true;
+        // },
       };
 
       // By default, Unity keeps WebGL canvas render target size matched with
@@ -71,6 +77,15 @@
       // happening inside the engine, and you would instead like to size up
       // the canvas DOM size and WebGL render target sizes yourself.
       // config.matchWebGLToCanvasSize = false;
+
+      // If you would like all file writes inside Unity Application.persistentDataPath
+      // directory to automatically persist so that the contents are remembered when
+      // the user revisits the site the next time, uncomment the following line:
+      // config.autoSyncPersistentDataPath = true;
+      // This autosyncing is currently not the default behavior to avoid regressing
+      // existing user projects that might rely on the earlier manual
+      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
+      // expected to change.
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
