@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
- <appSettings>
-	<add key="Global.URLCatalog" value="https://catalog-sim.riskprof.ru" />
-	<add key="protocolUrl" value="TemplateData/BrowserAssets/Result.html" />
-  </appSettings>
-</configuration>
