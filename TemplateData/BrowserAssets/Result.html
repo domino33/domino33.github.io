@@ -1,0 +1,159 @@
+﻿<link href='Protocol/Content/External/Bootstrap/css/bootstrap.min.css' rel='stylesheet' />
+<script src='Protocol/Content/JQuery/jquery.min.js'></script>
+<script src='Protocol/Content/js/Function.js'></script>
+<script src='Protocol/Content/js/SmartTestResult.js'></script>
+<script src='Library/SmartTest/SmartTest/smartTestEditor.js'></script>
+<link href='Protocol/res.css' rel='stylesheet' />
+<style>
+    * {
+    background: white;
+    }
+    .topRow {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .table td {
+        border: 2px solid #000000;
+        padding: .75rem;
+        vertical-align: top;
+    }
+
+    .topInfo {
+        margin-top: -30px;
+    }
+	@media print {
+        .no-print {
+            display: none !important;
+        }
+	}
+	body {
+		margin: 10px;
+	}
+</style>
+<div class='row' style='margin:0px !important; width:100%;'>
+    <div class='col col-lg-12'>
+        <div class='topRow' style='margin-bottom:20px; margin-top:10px;  display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        text-align: center'>
+            <div style='margin-left: auto;'>
+                <div id='protocolTitle'>Протокол №</div>
+                <br />
+                <br />
+                <div class='topInfo'>о прохождении практического занятия в виртуальной производственной среде.</div>
+            </div>
+            <div class='' style='margin-left: auto;'>
+                <button type='button' id='btn_download' class='btn btn-outline-secondary download-button no-print' style='width: 100%; margin-bottom:5px; padding: 0.25rem 0;'>Отправить на печать</button>
+                <button type='button' id='btn_exit' class='btn btn-outline-secondary return-button no-print' style='width:100%; padding: 0.25rem 0;visibility: hidden;'>Закрыть страницу</button>
+            </div>
+        </div>
+        <br />
+        <br />
+        <div style=' text-align: left'>
+            <div id='topTitle'>Тема: </div>
+            <br />
+            <div id='topUserTitle'>Пользователь: </div>
+            <br />
+            <div id='date'>Дата прохождение смарт-теста: </div>
+            <br />
+            <div id='result'>Результат прохождения: </div> <br />
+            <div id='percentage'>Процент правильных ответов: </div>
+            <br />
+            <div id='time'>Затраченное время: </div>
+            <br />
+        </div>
+    </div>
+</div>
+<table id='tableResult' class='table' style='width: 100%; margin-bottom: 1rem; color: #212529; border: 1px solid #dee2e6;border-collapse: collapse '>
+    <thead style=' vertical-align: bottom; text-align: center;font-weight: bold; font-size: 15px'>
+        <tr>
+            <td></td>
+            <td>Тип</td>
+            <td>Наименование</td>
+            <td>Результат</td>
+            <td>Время</td>
+        </tr>
+    </thead>
+</table>
+<div class='row' style='margin-top: 40px'>
+
+</div>
+<script>
+    if (typeof RP === 'undefined') RP = {};
+    RP.localVersion = false;
+    RP.Commands = {
+        GetRequestZip: 107
+    };
+    RP.Texts = {
+        Successfully: "Успешно",
+        Unsuccessful: "Неуспешно",
+        Target: "Цель",
+        Stage: "Этап",
+        From: "от",
+    }
+    var resultApp = null;
+    //$(document).ready(function () {
+    ////    ShowResults("http://localhost:60396/smartTest/TestApp?EntityId=4&EntityTypeId=30002&RelativePath=System\\SmartTests\\395d7f1c6843475ab423e6725381c91a")
+    //});
+    function ShowResults(urlSmartTest, userName, result,CourseGuid,SmartTestGuid) {
+        try {
+           // var paramsString = new URL(urlSmartTest);
+           // var searchParams = new URLSearchParams(paramsString.search);
+           // if (document.location.protocol == "file:") {
+                RP.localVersion = true;
+           // }
+            const smartTestEditor = new SmartTestEditor.Client("");
+            smartTestEditor.GetSmartTestXml(CourseGuid,SmartTestGuid, "",
+                (response) => {
+					console.log('yes');
+                    resultApp = new RP.SmartTestResult(result, userName, document.getElementById("tableResult"), (new window.DOMParser()).parseFromString(new XMLSerializer().serializeToString(response), "text/xml"));//"#topTitle", "#date", "#result", "#percentage", "#time",
+                    resultApp.Init();
+                });
+        }
+        catch (e) {
+            console.log("Произошла ошибка во время загрузки протокола" + e);
+            ShowExitWindows("Произошла ошибка во время отображения протокола, приложение будет закрыто")
+        }
+    }
+    function GetRequest(eventName, result) {
+        const event = new CustomEvent(eventName, {//'eventRequest'
+            detail: {
+                result: result,
+            },
+        })
+        window.dispatchEvent(event)
+    }
+	function unityCommandJS(command) {
+		if (typeof unityCommand === "function") {
+			console.log("true");
+			 unityCommand(command);
+		} else {
+			console.log("false");
+			 window.addEventListener('zfbrowserready',  () => unityCommand(command), { once: true });
+		}
+	}
+    $('#btn_download').click(function () {
+		window.print();
+    });
+	    
+    $('#btn_exit').click(function () {
+       // ShowExitWindows("Прохождение завершено, приложение будет закрыто")
+    });
+    function ShowExitWindows(text) {
+        let paramsWindow =
+        {
+            Header: "Завершение",
+            Text: text,
+            Buttons: 1,
+            Type: 2,
+            OKHandler: "Assets.ModalWindows.Scripts.Handler.ExitApplication"
+        };
+        let exitApplication = {
+            CommandType: 42,
+        };
+        exitApplication.Params = JSON.stringify(paramsWindow);
+        unityCommandJS(JSON.stringify(exitApplication));
+    }
+</script>

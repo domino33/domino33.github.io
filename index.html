@@ -6,7 +6,20 @@
     <title>Unity Web Player | RiskProf-Web</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
+  <script src="TemplateData/BrowserAssets/SmartTestControllerHtml.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/PresentationEditor/presentationEditor.config.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/PresentationEditor/presentationEditor.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/SmartTest/smartTestEditor.config.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/SmartTest/smartTestEditor.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/ActionManager.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/CommandMaker.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/Dialogs.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/Function.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/MetadataLoad.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/SmartTestModel.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/TestApp.js"></script>
+<script src="TemplateData/BrowserAssets/Library/SmartTest/Unity/TestSdo.js"></script>
+</head>
   <body>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
@@ -52,12 +65,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/test.loader.js";
+      var loaderUrl = buildUrl + "/App.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/test.data",
-        frameworkUrl: buildUrl + "/test.framework.js",
-        codeUrl: buildUrl + "/test.wasm",
+        dataUrl: buildUrl + "/App.data",
+        frameworkUrl: buildUrl + "/App.framework.js",
+        codeUrl: buildUrl + "/App.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "OOO_CYROBZ",
         productName: "RiskProf-Web",
@@ -112,10 +125,12 @@
 
       var script = document.createElement("script");
       script.src = loaderUrl;
-      script.onload = () => {
+      var unityInstances = null;
+script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
               }).then((unityInstance) => {
+unityInstances = unityInstance;
                 document.querySelector("#unity-loading-bar").style.display = "none";
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
                   unityInstance.SetFullscreen(1);

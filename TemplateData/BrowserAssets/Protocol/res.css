@@ -1,0 +1,10 @@
+@media print {
+    .btn {
+        display: none;
+    }
+}
+.topRow{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+}
