@@ -1,0 +1,371 @@
+﻿<link href='Protocol/Content/External/Bootstrap/css/bootstrap.min.css' rel='stylesheet' />
+<script src='Protocol/Content/JQuery/jquery.min.js'></script>
+<script src='Protocol/Content/js/Function.js'></script>
+<script src='Protocol/Content/js/SmartTestResult.js'></script>
+<script src='Library/SmartTest/SmartTest/smartTestEditor.js'></script>
+<link href='Protocol/res.css' rel='stylesheet' />
+<style>
+    * {
+    background: white;
+    }
+    .topRow {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .table td {
+        border: 2px solid #000000;
+        padding: .75rem;
+        vertical-align: top;
+    }
+
+    .topInfo {
+        margin-top: -30px;
+    }
+	@media print {
+        .no-print {
+            display: none !important;
+        }
+	}
+	body {
+		margin: 10px;
+	}
+</style>
+<div class='row' style='margin:0px !important; width:100%;'>
+    <div class='col col-lg-12'>
+        <div class='topRow' style='margin-bottom:20px; margin-top:10px;  display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        text-align: center'>
+            <div style='margin-left: auto;'>
+                <div id='protocolTitle'>Протокол №</div>
+                <br />
+                <br />
+                <div class='topInfo'>о прохождении практического занятия в виртуальной производственной среде.</div>
+            </div>
+            <div class='' style='margin-left: auto;'>
+                <button type='button' id='btn_download' class='btn btn-outline-secondary download-button no-print' style='width: 100%; margin-bottom:5px; padding: 0.25rem 0;'>Отправить на печать</button>
+				<!--<a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSeb599auY_kJIPuNHy15TXomKBH9rDdkGsoehP2pRzWhhd7rw/viewform"><button type='button' id='btn_survey' class='btn btn-outline-secondary no-print' style='width: 100%; margin-bottom:5px; padding: 0.25rem 0;'>Пройти онлайн-опрос</button></a> -->
+                <button type='button' id='btn_exit' class='btn btn-outline-secondary return-button no-print' style='width:100%; padding: 0.25rem 0;'>Завершить прохождение</button>
+            </div>
+        </div>
+        <br />
+        <br />
+        <div style=' text-align: left'>
+            <div id='topTitle'>Тема: </div>
+            <br />
+            <div id='topUserTitle'>Пользователь: </div>
+            <br />
+            <div id='date'>Дата прохождение смарт-теста: </div>
+            <br />
+            <div id='result'>Результат прохождения: </div> <br />
+            <div id='percentage'>Процент правильных ответов: </div>
+            <br />
+            <div id='time'>Затраченное время: </div>
+            <br />
+        </div>
+    </div>
+</div>
+<table id='tableResult' class='table' style='width: 100%; margin-bottom: 1rem; color: #212529; border: 1px solid #dee2e6;border-collapse: collapse '>
+    <thead style=' vertical-align: bottom; text-align: center;font-weight: bold; font-size: 15px'>
+        <tr>
+            <td></td>
+            <td>Тип</td>
+            <td>Наименование</td>
+            <td>Результат</td>
+            <td>Время</td>
+        </tr>
+    </thead>
+</table>
+<div class='row' style='margin-top: 40px'>
+
+</div>
+<script>
+    if (typeof RP === 'undefined') RP = {};
+    RP.localVersion = false;
+    RP.Commands = {
+        GetRequestZip: 107
+    };
+    RP.Texts = {
+        Successfully: "Успешно",
+        Unsuccessful: "Неуспешно",
+        Target: "Цель",
+        Stage: "Этап",
+        From: "от",
+    }
+    var resultApp = null;
+    //$(document).ready(function () {
+    ////    ShowResults("http://localhost:60396/smartTest/TestApp?EntityId=4&EntityTypeId=30002&RelativePath=System\\SmartTests\\395d7f1c6843475ab423e6725381c91a")
+    //});
+    function ShowResults(urlSmartTest, userName, result,CourseGuid,SmartTestGuid) {
+        try {
+           // var paramsString = new URL(urlSmartTest);
+           // var searchParams = new URLSearchParams(paramsString.search);
+           // if (document.location.protocol == "file:") {
+                RP.localVersion = true;
+           // }
+            const smartTestEditor = new SmartTestEditor.Client("");
+            smartTestEditor.GetSmartTestXml(CourseGuid,SmartTestGuid, "",
+                (response) => {
+					console.log('yes');
+                    resultApp = new RP.SmartTestResult(result, userName, document.getElementById("tableResult"), (new window.DOMParser()).parseFromString(new XMLSerializer().serializeToString(response), "text/xml"));//"#topTitle", "#date", "#result", "#percentage", "#time",
+                    resultApp.Init();
+                });
+        }
+        catch (e) {
+            console.log("Произошла ошибка во время загрузки протокола" + e);
+            ShowExitWindows("Произошла ошибка во время отображения протокола, приложение будет закрыто")
+        }
+    }
+    function GetRequest(eventName, result) {
+        const event = new CustomEvent(eventName, {//'eventRequest'
+            detail: {
+                result: result,
+            },
+        })
+        window.dispatchEvent(event)
+    }
+	function unityCommandJS(command) {
+		if (typeof unityCommand === "function") {
+			console.log("true");
+			 unityCommand(command);
+		} else {
+			console.log("false");
+			 window.addEventListener('zfbrowserready',  () => unityCommand(command), { once: true });
+		}
+	}
+    $('#btn_download').click(function () {
+		window.print();
+    });
+	    
+    $('#btn_exit').click(function () {
+
+		    // 1. Найти и скрыть/удалить контейнер Unity WebGL
+    const unityContainer = document.getElementById('unity-canvas');
+    
+    if (unityContainer) {
+        unityContainer.style.display = 'none';
+        // Альтернативно можно удалить элемент полностью
+        // unityContainer.remove();
+    }
+    
+    // 2. Остановить все Unity WebGL процессы (если доступен объект unityInstance)
+    if (typeof window.parent.unityInstances !== 'undefined') {
+		console.log('Unity stopped');
+        try {
+            window.parent.unityInstances.Quit();
+        } catch (e) {
+            console.log('Unity instance stopped');
+        }
+    }
+    
+    // 3. Создать и отобразить сообщение о завершении
+    const completionMessage = `
+        <div id="riskprofCompletion" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #54565A 0%, #7A868E 100%);
+            color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            text-align: center;
+            z-index: 9999;
+        ">
+            <div style="
+                background: #FFFFFF;
+                padding: 60px 50px;
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                max-width: 600px;
+                width: 85%;
+                color: #54565A;
+                border: 4px solid #C02032;
+                position: relative;
+            ">
+
+                
+                <!-- Заголовок -->
+                <h1 style="
+                    color: #C02032;
+                    font-size: 36px;
+                    margin-bottom: 25px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 1.5px;
+                ">
+                    Тренажёр завершен
+                </h1>
+                
+                <!-- Сообщение -->
+                <div style="
+                    background: #F8F9FA;
+                    padding: 30px;
+                    border-radius: 15px;
+                    border-left: 5px solid #C02032;
+                    margin-bottom: 30px;
+                    text-align: left;
+                    border: 2px solid #7A868E;
+                ">
+                    <p style="
+                        font-size: 20px;
+                        margin-bottom: 15px;
+                        color: #54565A;
+                        line-height: 1.5;
+                        display: flex;
+                        align-items: center;
+                        font-weight: 600;
+						background: #F8F9FA;
+						
+                    ">
+                        <span style="
+                            background: #C02032;
+                            color: #FFFFFF;
+                            width: 28px;
+                            height: 28px;
+                            border-radius: 50%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 15px;
+                            font-size: 16px;
+                            font-weight: bold;
+                            flex-shrink: 0;
+                        ">✓</span>
+                        Вы можете безопасно закрыть эту вкладку
+                    </p>
+                    <p style="
+                        font-size: 20px;
+                        margin-bottom: 0;
+                        color: #54565A;
+                        line-height: 1.5;
+                        display: flex;
+                        align-items: center;
+                        font-weight: 600;
+						background: #F8F9FA;
+                    ">
+                        <span style="
+                            background: #7A868E;
+                            color: #FFFFFF;
+                            width: 28px;
+                            height: 28px;
+                            border-radius: 50%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 15px;
+                            font-size: 16px;
+                            font-weight: bold;
+                            flex-shrink: 0;
+                        ">✓</span>
+                        Результаты сохранены в системе
+                    </p>
+                </div>
+                
+                <!-- Благодарность -->
+ <p style="
+                        font-size: 24px;
+                        font-weight: 700;
+                        margin: 0;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        color: #c02032;
+                    ">
+                        Спасибо за прохождение!
+                    </p>
+                
+                <!-- Инструкция по закрытию -->
+ <p style="
+                        font-size: 18px;
+                        margin: 0;
+                        font-weight: 600;
+                        color: #54565a;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">
+                        <span style="font-size: 24px; margin-right: 10px;">💡</span>
+                        Просто закройте эту вкладку браузера
+                    </p>
+                
+                <!-- Подпись -->
+                <div style="
+                    color: #7A868E;
+                    font-size: 16px;
+                    margin-top: 25px;
+                    border-top: 2px solid #7A868E;
+                    padding-top: 20px;
+                ">
+                    <p style="margin: 8px 0; font-weight: 700; font-size: 18px; color: #C02032;">
+                        РискПроф
+                    </p>
+                    <p style="margin: 5px 0; font-size: 15px; color: #54565A;">
+                        Профессиональные решения по охране труда
+                    </p>
+                   <!-- <p style="margin: 5px 0; font-size: 13px; color: #7A868E;">
+                        Все права защищены
+                    </p>-->
+                </div>
+            </div>
+        </div>
+    `;
+    
+   // document.body.innerHTML += completionMessage;
+
+    
+    if (typeof window.parent.unityInstances !== 'undefined') {
+		window.parent.document.body.innerHTML += completionMessage;
+      //  var webOverlay = window.parent.document.getElementById('unity-web-overlay');
+		//if (webOverlay) {
+	//		 webOverlay.remove();
+	//	}
+    }
+   
+    
+    // 4. Дополнительные меры для освобождения ресурсов
+   // const canvases = document.querySelectorAll('canvas');
+  //  canvases.forEach(canvas => {
+   //     if (canvas !== document.querySelector('#completionScreen canvas')) {
+   //         canvas.style.display = 'none';
+   //     }
+   // });
+    
+    // Остановить все аудио контексты
+ //   if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+ //       const audioContext = new (AudioContext || webkitAudioContext)();
+ //       audioContext.close();
+ //   }
+		/*  if(confirm('Вы уверены, что хотите закрыть приложение?')) {
+				window.close();
+				const referrer = document.referrer;
+    
+				if (referrer && referrer !== '' && referrer !== window.location.href) {
+					// Если есть referrer и это не текущая страница
+					window.location.href = referrer;
+				} else {
+					alert("Не удалось закрыть страницу, выполните закрытие страницы самостоятельно.");
+				}
+            }*/
+       // ShowExitWindows("Прохождение завершено, приложение будет закрыто")
+    });
+    function ShowExitWindows(text) {
+        let paramsWindow =
+        {
+            Header: "Завершение",
+            Text: text,
+            Buttons: 1,
+            Type: 2,
+            OKHandler: "Assets.ModalWindows.Scripts.Handler.ExitApplication"
+        };
+        let exitApplication = {
+            CommandType: 42,
+        };
+        exitApplication.Params = JSON.stringify(paramsWindow);
+        unityCommandJS(JSON.stringify(exitApplication));
+    }
+</script>
