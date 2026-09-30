@@ -749,6 +749,87 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
   .services-grid { grid-template-columns: 1fr; }
 }
 
+/* ============ RESEARCH Q&A ============ */
+.qa-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+.qa-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+.qa-card:hover { border-color: var(--border-hi); }
+.qa-card__icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.qa-card__q {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--text-emp);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+.qa-card__a {
+  font-size: 0.9rem;
+  color: var(--text-mute);
+  line-height: 1.6;
+}
+.qa-card__a strong { color: var(--text); }
+
+@media (max-width: 900px) {
+  .qa-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ VERDICT BLOCK ============ */
+.verdict-block {
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.05), rgba(204, 255, 0, 0.01));
+  border: 1px solid var(--accent-mute);
+  border-left: 4px solid var(--accent);
+  padding: 3rem;
+  border-radius: 4px;
+}
+.verdict-block .section__num { color: var(--accent); margin-bottom: 1rem; display: block; }
+.verdict-block__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--text-emp);
+  margin-bottom: 2rem;
+}
+.verdict-block__title em { color: var(--accent); font-style: normal; }
+.verdict-block__text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text);
+  max-width: 800px;
+}
+.verdict-block__text .hi {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: inline-block;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.verdict-block__text strong { color: var(--text-emp); font-weight: 500; }
+
+@media (max-width: 900px) {
+  .verdict-block { padding: 2rem; }
+}
+
 /* ============ FOOTER ============ */
 .footer {
   border-top: 1px solid var(--border);
@@ -792,7 +873,8 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
     <a href="#reference">Reference</a>
     <a href="#station">Viewer</a>
     <a href="#matrix">Matrix</a>
-    <a href="#services">Services</a>
+    <a href="#research">Research</a>
+    <a href="#verdict">Verdict</a>
   </nav>
 </header>
 
@@ -801,7 +883,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
   <!-- ============ HERO & REFERENCE ============ -->
   <section class="hero section" id="reference">
     <div class="hero__head fade-up">
-      <div class="hero__eyebrow">Benchmark / Q4 2024 / 6 Services</div>
+      <div class="hero__eyebrow">Benchmark / Q4 2024 / 5 Services</div>
       <h1 class="hero__title">
         Сравнительная станция<br>
         <em>генеративных 3D-моделей</em>
@@ -892,7 +974,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
             <div class="viewer__tools">
             </div>
           </div>
-		              <div class="viewer__overlay-info">
+                      <div class="viewer__overlay-info">
               <div>ASSET: <span id="assetName">meshy_owl_v1</span></div>
               <div>FORMAT: <span id="assetFormat">GLB</span></div>
             </div>
@@ -1143,7 +1225,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
         </div>
       </article>
 
-      <!-- Rodin -->
+      <!-- Lychee -->
       <article class="svc-card fade-up">
         <div class="svc-card__head">
           <div>
@@ -1219,7 +1301,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
         </div>
       </article>
 
-      <!-- CSM -->
+      <!-- Hunyuan3D -->
       <article class="svc-card fade-up">
         <div class="svc-card__head">
           <div>
@@ -1259,6 +1341,74 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
     </div>
   </section>
 
+  <!-- ============ RESEARCH Q&A ============ -->
+  <section class="section" id="research">
+    <div class="section__head fade-up">
+      <div class="section__title-block">
+        <span class="section__num">05 / Research</span>
+        <h2 class="section__title">Questions & <em>Answers</em></h2>
+      </div>
+      <div class="section__meta">POSTANOВКА ЗАДАЧИ / РЕЗУЛЬТАТЫ</div>
+    </div>
+
+    <div class="qa-grid">
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q1 / ПОЛИГОНАЖ</div>
+        <h3 class="qa-card__q">Какой сервис выдает самую точную геометрию по референсу, и можно ли ее использовать сразу?</h3>
+        <p class="qa-card__a">
+          <strong>Lychee, Hunyuan3D и Hyper3D</strong> показали наилучшее попадание в референс (10/10). Они точно повторяют форму ствола, шарнира и рукояти. Однако это достигается за счет огромного полигонажа (от 50k до 1.9 млн полигонов), что делает их непригодными для реального времени без агрессивной ручной ретопологии.
+        </p>
+      </div>
+
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q2 / UNITY READY</div>
+        <h3 class="qa-card__q">Какие сервисы выдают готовые для Unity (WebGL) ассеты "из коробки"?</h3>
+        <p class="qa-card__a">
+          Только <strong>Meshy AI и Tripo3D</strong>. Они имеют встроенные алгоритмы ремеша (SmartTopology / SmartMesh 2.0), позволяют задавать лимит полигонов (до 100-500) и выдают чистую quad-топологию. Остальные сервисы требуют обязательной конвертации и ретопологии перед импортом в игровой движок.
+        </p>
+      </div>
+
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q3 / LOW-POLY</div>
+        <h3 class="qa-card__q">Можно ли получить качественную модель в низком полигонаже (LowPoly) без ручной ретопологии?</h3>
+        <p class="qa-card__a">
+          <strong>Tripo3D</strong> справляется с этим лучше всего благодаря функции SmartMesh 2.0. <strong>Meshy AI</strong> также позволяет уменьшать полигонаж, но при экстремально низких значениях (до 100 полигонов) сильно страдает детализация и форма ствола. Hunyuan3D физически не позволяет опускаться ниже 50 000 полигонов.
+        </p>
+      </div>
+
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q4 / ЦЕНА</div>
+        <h3 class="qa-card__q">Какой сервис предоставляет лучшее соотношение цены и качества?</h3>
+        <p class="qa-card__a">
+          Для концепт-арта и 3D-печати однозначный лидер — <strong>Hunyuan3D</strong> (полностью бесплатно, отличное качество). Для геймдева и коммерческой разработки ассетов оптимальны <strong>Tripo3D ($13/мес)</strong> и <strong>Lychee ($10/мес)</strong> — они дают необходимый набор инструментов (ремеш, риггинг, сегментация) по минимальной цене на рынке.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MAIN VERDICT ============ -->
+  <section class="section" id="verdict">
+    <div class="verdict-block fade-up">
+      <span class="section__num">06 / Verdict</span>
+      <h2 class="verdict-block__title">Главный <em>вывод</em> исследования</h2>
+      <div class="verdict-block__text">
+        <p>
+          Универсального ИИ-генератора 3D-моделей, одинаково хорошо справляющегося со всеми задачами, на данный момент не существует. 
+        </p>
+        
+        <span class="hi">→ Для геймдева и Unity (WebGL):</span>
+        <p>
+          Подходит <strong>Tripo3D</strong> или <strong>Meshy AI</strong>. Они позволяют генерировать модели с контролем полигонажа и готовы к импорту в движок "из коробки", не требуя ручной ретопологии. Tripo3D предпочтительнее для стилизованных ассетов, Meshy — для хард-серфейса.
+        </p>
+
+        <span class="hi">→ Для концепт-дизайна, 3D-печати и референсов:</span>
+        <p>
+          Подходит <strong>Lychee</strong> или <strong>Hunyuan3D</strong>. Они дают идеальную точность и высокое качество геометрии/текстур, пренебрегая оптимизацией под реальные рендеры в реальном времени. Hunyuan3D при этом абсолютно бесплатен и имеет настройку лимита по минимальному полигонажу.
+        </p>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <footer class="footer">
@@ -1283,7 +1433,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
   // ============ DATA ============
   const serviceData = {
     Hunyuan3D: {
-      assetName: 'owl_v1',
+      assetName: 'hunyuan_pistol',
       format: 'obj',
       genTime: '58s',
       render: 'Hunyuan3D/На основе реф/Screenshot_33.png',
@@ -1292,7 +1442,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
       scores: { unity: 7, ref: 8, art: 7, tex: 8 }
     },
     Hyper3D_Ai: {
-      assetName: 'owl_v2',
+      assetName: 'hyper_pistol',
       format: 'obj',
       genTime: '118s',
       render: 'Hyper3D_Ai/На основе реф/Screenshot_34.png',
@@ -1301,7 +1451,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
       scores: { unity: 2, ref: 8, art: 9, tex: 7 }
     },
     Lychee: {
-      assetName: 'owl_v1',
+      assetName: 'lychee_pistol',
       format: 'GLB',
       genTime: '28s',
       render: 'lychee/На основе реф/Screenshot_33.png',
@@ -1310,7 +1460,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
       scores: { unity: 2, ref: 10, art: 10, tex: 8 }
     },
     Meshy_Ai: {
-      assetName: 'owl_v3',
+      assetName: 'meshy_pistol',
       format: '-',
       genTime: '88s',
       render: 'Meshy_Ai/На основе реф/Screenshot_35.png',
@@ -1319,7 +1469,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
       scores: { unity: 8, ref: 7, art: 6, tex: 6 }
     },
     Tripo3D: {
-      assetName: 'owl_v1',
+      assetName: 'tripo_pistol',
       format: '-',
       genTime: '0.4s',
       render: 'Tripo3D/На основе реф/Screenshot_33.png',
@@ -1440,7 +1590,7 @@ button { background: none; border: 0; font: inherit; color: inherit; cursor: poi
     document.getElementById('scoreRefBar').style.width = (data.scores.ref * 10) + '%';
     document.getElementById('scoreArtBar').style.width = (data.scores.art * 10) + '%';
     document.getElementById('scoreTexBar').style.width = (data.scores.tex * 10) + '%';
-	
+    
   }, 500);*/
 updateService('Hunyuan3D');
 })();
