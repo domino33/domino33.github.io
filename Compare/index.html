@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D AI Lab · Сравнительная станция генеративных моделей</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@300;400;500&display=swap">
+<style>
+:root {
+  --bg: #0A0B0D;
+  --bg-elevated: #111317;
+  --bg-panel: #16181D;
+  --text: #E8E8EA;
+  --text-emp: #FFFFFF;
+  --text-mute: #8B8D93;
+  --text-faint: #4A4C52;
+  --accent: #CCFF00; /* Tech Green */
+  --accent-mute: rgba(204, 255, 0, 0.15);
+  --border: #232529;
+  --border-hi: #353840;
+  --danger: #FF3366;
+  --warn: #FFAA00;
+  --ease-quiet: cubic-bezier(.22, 1, .36, 1);
+  --ease-precise: cubic-bezier(.4, 0, .2, 1);
+  --ease-emphasis: cubic-bezier(.16, 1, .3, 1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+button { background: none; border: 0; font: inherit; color: inherit; cursor: pointer; }
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ============ NAV ============ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1.2rem 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10, 11, 13, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav__brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.nav__brand-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent);
+}
+.nav__links {
+  display: flex; gap: 2.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; font-weight: 400;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--text-mute);
+}
+.nav__links a { transition: color 0.3s ease; }
+.nav__links a:hover { color: var(--text); }
+.nav__cta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--border-hi);
+  transition: all 0.3s ease;
+}
+.nav__cta:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+@media (max-width: 768px) {
+  .nav { padding: 1rem 1.5rem; }
+  .nav__links { display: none; }
+}
+
+/* ============ LAYOUT ============ */
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.section {
+  padding: 6rem 0;
+  position: relative;
+}
+
+.section__head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.section__title-block { display: flex; flex-direction: column; gap: 0.8rem; }
+.section__num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.section__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  letter-spacing: -0.02em;
+  color: var(--text-emp);
+  line-height: 1.1;
+}
+.section__title em { font-style: normal; color: var(--accent); }
+.section__meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-mute);
+  letter-spacing: 0.05em;
+}
+
+/* ============ HERO / REFERENCE ============ */
+.hero {
+  padding-top: 8rem;
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.hero__head {
+  margin-bottom: 4rem;
+}
+.hero__eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.hero__eyebrow::before {
+  content: ''; width: 24px; height: 1px; background: var(--accent);
+}
+.hero__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text-emp);
+  max-width: 1200px;
+}
+.hero__title em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--text-mute), var(--text-faint));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.reference {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.ref-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+.ref-panel__head {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(0,0,0,0.2);
+}
+.ref-panel__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-mute);
+}
+.ref-panel__status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.ref-panel__status::before {
+  content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.ref-image {
+  aspect-ratio: 16/10;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+.ref-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+.ref-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 60%, rgba(0,0,0,0.8));
+  pointer-events: none;
+}
+
+.ref-info {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 2rem;
+}
+.ref-info__item .label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  margin-bottom: 0.4rem;
+}
+.ref-info__item .value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-emp);
+}
+
+.ref-prompt {
+  padding: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-emp);
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+  position: relative;
+}
+.ref-prompt::before {
+  content: '> ';
+  color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .reference { grid-template-columns: 1fr; }
+}
+
+/* ============ COMPARISON STATION ============ */
+.station {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.station__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: rgba(0,0,0,0.2);
+}
+.station__tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  padding: 1.2rem 1.5rem;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 0.4rem;
+  min-width: 180px;
+  position: relative;
+  transition: background 0.3s ease;
+  text-align: left;
+}
+.tab:hover { background: rgba(255,255,255,0.02); }
+.tab.active {
+  background: var(--bg-elevated);
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+}
+.tab__name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-emp);
+}
+.tab__type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-faint);
+}
+.tab.active .tab__type { color: var(--accent); }
+
+.station__body {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  min-height: 600px;
+}
+
+.viewer {
+  padding: 2rem;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(204, 255, 0, 0.03) 0%, transparent 60%),
+    #000;
+  position: relative;
+}
+
+.viewer__head {
+  display: flex; justify-content: center; align-items: center;
+  margin-bottom: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-mute);
+}
+.viewer__tools { display: flex; gap: 1rem; }
+.viewer__tool {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 0.7rem;
+  transition: all 0.3s ease;
+}
+.viewer__tool:hover { border-color: var(--text-mute); color: var(--text-emp); }
+
+.viewer__canvas {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+}
+.viewer__render {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+  transition: opacity 0.4s ease, transform 0.6s var(--ease-quiet);
+}
+.viewer__render.changing {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+}
+
+/* Simple wireframe overlay simulation */
+.viewer__grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.viewer__overlay-info {
+  position: absolute;
+  top: 1rem; left: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+      z-index: 2;
+}
+.viewer__overlay-info span { color: var(--accent); }
+
+.viewer__footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.viewer__actions { display: flex; gap: 0.8rem; }
+.btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--border-hi);
+  background: transparent;
+  color: var(--text-emp);
+  transition: all 0.3s ease;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.btn:hover { background: rgba(255,255,255,0.05); border-color: var(--text-mute); }
+.btn--primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 500;
+}
+.btn--primary:hover { background: #B8E600; }
+
+/* METRICS PANEL */
+.metrics {
+  padding: 2rem;
+  display: flex; flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  transition: opacity 0.3s ease;
+}
+.metrics.changing { opacity: 0.3; pointer-events: none; }
+
+.metrics__unity-badge {
+  padding: 1rem;
+  border-radius: 4px;
+  display: flex; align-items: center; gap: 1rem;
+  border: 1px solid;
+}
+.metrics__unity-badge.ready {
+  background: rgba(204, 255, 0, 0.08);
+  border-color: rgba(204, 255, 0, 0.3);
+  color: var(--accent);
+}
+.metrics__unity-badge.convert {
+  background: rgba(255, 170, 0, 0.08);
+  border-color: rgba(255, 170, 0, 0.3);
+  color: var(--warn);
+}
+.unity-icon {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+}
+.metrics__unity-text { flex: 1; }
+.metrics__unity-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+}
+.metrics__unity-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 0.2rem;
+}
+
+.metrics__group-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+.spec-item {
+  display: flex; flex-direction: column; gap: 0.3rem;
+}
+.spec-item .l {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.spec-item .v {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-emp);
+}
+
+.score-list {
+  display: flex; flex-direction: column;
+  gap: 1rem;
+}
+.score-item {
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+.score-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.score-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+.score-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-emp);
+}
+.score-val span { color: var(--text-faint); font-size: 0.75rem; }
+.score-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.score-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 1s var(--ease-quiet);
+}
+.score-fill.warn { background: var(--warn); }
+.score-fill.danger { background: var(--danger); }
+
+@media (max-width: 1000px) {
+  .station__body { grid-template-columns: 1fr; }
+  .viewer { border-right: 0; border-bottom: 1px solid var(--border); }
+}
+
+/* ============ MATRIX TABLE ============ */
+.matrix-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+}
+.matrix {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+}
+.matrix thead th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-mute);
+  text-align: left;
+  padding: 1.5rem 1.2rem;
+  border-bottom: 1px solid var(--border-hi);
+  background: rgba(0,0,0,0.3);
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+.matrix thead th:first-child { color: var(--text-faint); }
+.matrix tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+}
+.matrix tbody tr:last-child { border-bottom: 0; }
+.matrix tbody tr:hover { background: rgba(255,255,255,0.02); }
+.matrix tbody td {
+  padding: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  vertical-align: middle;
+}
+.matrix tbody td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-mute);
+  width: 200px;
+}
+.matrix tbody td .hi { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+.matrix tbody td .ico {
+  display: inline-block;
+  width: 20px; text-align: center;
+  color: var(--accent);
+  font-weight: 500;
+}
+.matrix tbody td .ico.no { color: var(--text-faint); }
+
+/* ============ SERVICE CARDS ============ */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+.svc-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color 0.3s ease;
+}
+.svc-card:hover { border-color: var(--border-hi); }
+
+.svc-card__head {
+  padding: 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.svc-card__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+  color: var(--text-emp);
+  margin-bottom: 0.3rem;
+}
+.svc-card__url {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+.svc-card__url:hover { text-decoration: underline; }
+.svc-card__price {
+  text-align: right;
+}
+.svc-card__price .v {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 1.2rem;
+  color: var(--text-emp);
+}
+.svc-card__price .l {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.svc-card__body {
+  padding: 2rem;
+  flex: 1;
+  display: flex; flex-direction: column;
+  gap: 1.5rem;
+}
+.svc-card__desc {
+  font-size: 0.9rem;
+  color: var(--text-mute);
+  line-height: 1.6;
+}
+
+.svc-card__shots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.svc-shot {
+  aspect-ratio: 16/10;
+  background: #000;
+  overflow: hidden;
+  border-radius: 2px;
+  position: relative;
+}
+.svc-shot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+  transition: transform 0.6s var(--ease-quiet), opacity 0.3s ease;
+}
+.svc-shot:hover img { transform: scale(1.05); opacity: 1; }
+.svc-shot::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(transparent 70%, rgba(0,0,0,0.6));
+  pointer-events: none;
+}
+
+.svc-proscons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.svc-proscons .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  margin-bottom: 0.8rem;
+}
+.svc-proscons ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.svc-proscons li {
+  font-size: 0.85rem;
+  color: var(--text);
+  padding-left: 1rem;
+  position: relative;
+}
+.svc-pros .li::before {
+  content: '+'; position: absolute; left: 0; color: var(--accent); font-weight: 500;
+}
+.svc-cons li::before {
+  content: '−'; position: absolute; left: 0; color: var(--text-faint);
+}
+
+@media (max-width: 900px) {
+  .services-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ RESEARCH Q&A ============ */
+.qa-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+.qa-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+.qa-card:hover { border-color: var(--border-hi); }
+.qa-card__icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.qa-card__q {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--text-emp);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+.qa-card__a {
+  font-size: 0.9rem;
+  color: var(--text-mute);
+  line-height: 1.6;
+}
+.qa-card__a strong { color: var(--text); }
+
+@media (max-width: 900px) {
+  .qa-grid { grid-template-columns: 1fr; }
+}
+
+/* ============ VERDICT BLOCK ============ */
+.verdict-block {
+  background: linear-gradient(135deg, rgba(204, 255, 0, 0.05), rgba(204, 255, 0, 0.01));
+  border: 1px solid var(--accent-mute);
+  border-left: 4px solid var(--accent);
+  padding: 3rem;
+  border-radius: 4px;
+}
+.verdict-block .section__num { color: var(--accent); margin-bottom: 1rem; display: block; }
+.verdict-block__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--text-emp);
+  margin-bottom: 2rem;
+}
+.verdict-block__title em { color: var(--accent); font-style: normal; }
+.verdict-block__text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text);
+  max-width: 800px;
+}
+.verdict-block__text .hi {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: inline-block;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.verdict-block__text strong { color: var(--text-emp); font-weight: 500; }
+
+@media (max-width: 900px) {
+  .verdict-block { padding: 2rem; }
+}
+
+/* ============ FOOTER ============ */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 4rem 0 2rem;
+  margin-top: 4rem;
+}
+.footer__inner {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 2rem;
+}
+.footer__copy {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+}
+.footer__links { display: flex; gap: 2rem; }
+.footer__links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transition: color 0.3s ease;
+}
+.footer__links a:hover { color: var(--accent); }
+
+/* GSAP fade-up utility */
+.fade-up { opacity: 0; transform: translateY(30px); }
+
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav__brand">
+    <span class="nav__brand-dot"></span>
+    3D_AI_LAB / v2.4
+  </div>
+  <nav class="nav__links">
+    <a href="#reference">Reference</a>
+    <a href="#station">Viewer</a>
+    <a href="#matrix">Matrix</a>
+    <a href="#research">Research</a>
+    <a href="#verdict">Verdict</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- ============ HERO & REFERENCE ============ -->
+  <section class="hero section" id="reference">
+    <div class="hero__head fade-up">
+      <div class="hero__eyebrow">Benchmark / Q4 2024 / 5 Services</div>
+      <h1 class="hero__title">
+        Сравнительная станция<br>
+        <em>генеративных 3D-моделей</em>
+      </h1>
+    </div>
+
+    <div class="reference fade-up">
+      <!-- Reference Image -->
+      <div class="ref-panel">
+        <div class="ref-panel__head">
+          <span class="ref-panel__label">Input Reference</span>
+          <span class="ref-panel__status">Loaded</span>
+        </div>
+        <div class="ref-image">
+          <img src="1c955113-413c-4abd-83c5-21d681ef5058.png" alt="Reference Image">
+        </div>
+        <div class="ref-info">
+          <div class="ref-info__item">
+            <span class="label">Subject</span>
+            <span class="value">Single Object</span>
+          </div>
+          <div class="ref-info__item">
+            <span class="label">Background</span>
+            <span class="value">Neutral / Studio</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference Prompt -->
+      <div class="ref-panel">
+        <div class="ref-panel__head">
+          <span class="ref-panel__label">Input Prompt</span>
+          <span class="ref-panel__status">Active</span>
+        </div>
+        <div class="ref-prompt">
+          Реалистичная готовая к использованию в играх 3D-модель монтажного порохового пистолета(ПЦ-84) с откидным стволом, как у ружья с откидным механизмом.  Передняя часть ствола отделена от основного красного корпуса видимым шарнирным соединением с осью и линией зазора, что позволяет наклонять его для перезарядки.  Красный металлический корпус, черная D-образная рукоятка со спусковым крючком, черный цилиндрический ствол со стальным шарниром в основании.  В области шарнира есть четкое механическое разделение, болты и фиксирующая защелка сверху.  Оптимизированная топология, квадросетка, текстуры PBR, 4K. 
+        </div>
+        <div class="ref-info">
+          <div class="ref-info__item">
+            <span class="label">Language</span>
+            <span class="value">RU</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARISON STATION ============ -->
+  <section class="section" id="station">
+    <div class="section__head fade-up">
+      <div class="section__title-block">
+        <span class="section__num">02 / Viewer</span>
+        <h2 class="section__title">Interactive <em>Asset Viewer</em></h2>
+      </div>
+      <div class="section__meta">REAL-TIME METRICS / WEBGL READY</div>
+    </div>
+
+    <div class="station fade-up">
+      <!-- Tabs -->
+      <div class="station__tabs" id="serviceTabs">
+        <button class="tab active" data-service="Hunyuan3D">
+          <span class="tab__name">Hunyuan3D</span>
+          <span class="tab__type">Img + Text</span>
+        </button>
+        <button class="tab" data-service="Hyper3D_Ai">
+          <span class="tab__name">Hyper3D_Ai</span>
+          <span class="tab__type">Img + Text</span>
+        </button>
+        <button class="tab" data-service="Lychee">
+          <span class="tab__name">Lychee</span>
+          <span class="tab__type">Img + Text</span>
+        </button>
+        <button class="tab" data-service="Meshy_Ai">
+          <span class="tab__name">Meshy_Ai</span>
+          <span class="tab__type">Img + Text</span>
+        </button>
+        <button class="tab" data-service="Tripo3D">
+          <span class="tab__name">Tripo3D</span>
+          <span class="tab__type">Img + Text</span>
+        </button>
+      </div>
+
+      <div class="station__body">
+        <!-- Viewer -->
+        <div class="viewer">
+          <div class="viewer__head">
+            <span class="mono">VIEWPORT_01</span>
+            <div class="viewer__tools">
+            </div>
+          </div>
+                      <div class="viewer__overlay-info">
+              <div>ASSET: <span id="assetName">meshy_owl_v1</span></div>
+              <div>FORMAT: <span id="assetFormat">GLB</span></div>
+            </div>
+          <div class="viewer__canvas">
+            <div class="viewer__grid-overlay"></div>
+
+            <img id="viewerRender" class="viewer__render" src="Hunyuan3D/На основе реф/Screenshot_33.png" alt="3D Render">
+          </div>
+          <div class="viewer__footer">
+            <div class="mono" style="font-size: 0.75rem; color: var(--text-faint);">
+              GEN TIME: <span id="genTime" style="color: var(--accent);">58s</span>
+            </div>
+            <div class="viewer__actions">
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Panel -->
+        <div class="metrics" id="metricsPanel">
+          
+          <div class="metrics__unity-badge ready" id="unityBadge">
+            <div class="unity-icon">✓</div>
+            <div class="metrics__unity-text">
+              <div class="metrics__unity-label" id="unityStatus">Ready for Unity</div>
+              <div class="metrics__unity-sub" id="unitySub">No conversion required</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="metrics__group-title">Technical Specs</div>
+            <div class="spec-grid">
+              <div class="spec-item">
+                <span class="l">Polygons</span>
+                <span class="v" id="specPolys">12,450</span>
+              </div>
+              <div class="spec-item">
+                <span class="l">Topology</span>
+                <span class="v" id="specTopo">Quads</span>
+              </div>
+              <div class="spec-item">
+                <span class="l">UV Map</span>
+                <span class="v" id="specUV">Yes / Clean</span>
+              </div>
+              <div class="spec-item">
+                <span class="l">Textures</span>
+                <span class="v" id="specTex">PBR 2K</span>
+              </div>
+              <div class="spec-item">
+                <span class="l">Rigging</span>
+                <span class="v" id="specRig">None</span>
+              </div>
+              <div class="spec-item">
+                <span class="l">Export</span>
+                <span class="v" id="specExp">FBX, GLB, OBJ</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="metrics__group-title">Quality Assessment</div>
+            <div class="score-list">
+              <div class="score-item">
+                <div class="score-head">
+                  <span class="score-name">Unity Suitability</span>
+                  <span class="score-val" id="scoreUnityVal">9<span>/10</span></span>
+                </div>
+                <div class="score-bar"><div class="score-fill" id="scoreUnityBar" style="width: 90%;"></div></div>
+              </div>
+              <div class="score-item">
+                <div class="score-head">
+                  <span class="score-name">Reference Match</span>
+                  <span class="score-val" id="scoreRefVal">8<span>/10</span></span>
+                </div>
+                <div class="score-bar"><div class="score-fill" id="scoreRefBar" style="width: 80%;"></div></div>
+              </div>
+              <div class="score-item">
+                <div class="score-head">
+                  <span class="score-name">Artifacts (Inverse)</span>
+                  <span class="score-val" id="scoreArtVal">7<span>/10</span></span>
+                </div>
+                <div class="score-bar"><div class="score-fill warn" id="scoreArtBar" style="width: 70%;"></div></div>
+              </div>
+              <div class="score-item">
+                <div class="score-head">
+                  <span class="score-name">Texture Quality</span>
+                  <span class="score-val" id="scoreTexVal">9<span>/10</span></span>
+                </div>
+                <div class="score-bar"><div class="score-fill" id="scoreTexBar" style="width: 90%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MATRIX TABLE ============ -->
+  <section class="section" id="matrix">
+    <div class="section__head fade-up">
+      <div class="section__title-block">
+        <span class="section__num">03 / Matrix</span>
+        <h2 class="section__title">Full <em>Comparison Matrix</em></h2>
+      </div>
+      <div class="section__meta">5 SERVICES / 8 PARAMETERS</div>
+    </div>
+
+    <div class="matrix-wrap fade-up">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Hunyuan3D</th>
+            <th>Hyper3D_Ai</th>
+            <th>Lychee</th>
+            <th>Meshy_Ai</th>
+            <th>Tripo3D</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Cost (Free Tier)</td>
+            <td class="hi">20 credits (1m=1c)</td>
+            <td>5 credits (1m=0.5c)</td>
+            <td class="hi">100 credits (1m=40c)</td>
+            <td class="hi">100 credits (1m=30c)</td>
+            <td class="hi">200 credits (1m=55c)</td>
+          </tr>
+          <tr>
+            <td>Subscription</td>
+            <td>Free</td>
+            <td>$12 / mo</td>
+            <td>$10 / mo</td>
+            <td>$36 / mo</td>
+            <td>$13 / mo</td>
+          </tr>
+          <tr>
+            <td>Mesh Quality</td>
+            <td><span class="ico">●●●●●</span></td>
+            <td><span class="ico">●●●●●</span></td>
+            <td><span class="ico">●●●●●</span></td>
+            <td><span class="ico">●●●●○</span></td>
+            <td><span class="ico">●●●●●</span></td>
+          </tr>
+          <tr>
+            <td>Texture Quality</td>
+            <td><span class="ico">●●●●○</span></td>
+            <td><span class="ico">●●●●○</span></td>
+            <td><span class="ico">●●●●●</span></td>
+            <td><span class="ico">●●●●○</span></td>
+            <td><span class="ico">●●●●○</span></td>
+          </tr>
+          <tr>
+            <td>Reference Accuracy</td>
+            <td><span class="ico">●●●●●</span></td>
+            <td><span class="ico">●●●●●</span></td>
+            <td><span class="ico">●●●●●</span></td>
+            <td><span class="ico">●●●●○</span></td>
+            <td><span class="ico">●●●●●</span></td>
+          </tr>
+          <tr>
+            <td>PBR Materials</td>
+            <td><span class="ico">✓</span> Yes</td>
+            <td><span class="ico">✓</span> Yes</td>
+            <td><span class="ico">✓</span> Yes</td>
+            <td><span class="ico">✓</span> Yes</td>
+            <td><span class="ico">✓</span> Yes</td>
+          </tr>
+          <tr>
+            <td>Min Polygon Count</td>
+            <td class="hi">50k</td>
+            <td class="hi">-</td>
+            <td>-</td>
+            <td>100</td>
+            <td>500</td>
+          </tr>
+          <tr>
+            <td>Export Formats</td>
+            <td>GLB, FBX, OBJ</td>
+            <td>GLB, FBX, OBJ</td>
+            <td>GLB, FBX, OBJ</td>
+            <td>GLB, FBX, OBJ</td>
+            <td>GLB, FBX, OBJ</td>
+          </tr>
+          <tr>
+            <td>Unity / WebGL Ready</td>
+            <td class="hi"><span class="ico  no">X</span> Need remesh</td>
+            <td class="hi"><span class="ico  no">X</span> Need remesh</td>
+            <td><span class="ico  no">X</span> Need remesh</td>
+            <td class="hi"><span class="ico">✓</span> Native</td>
+            <td><span class="ico">✓</span> Native</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ SERVICES INFO ============ -->
+  <section class="section" id="services">
+    <div class="section__head fade-up">
+      <div class="section__title-block">
+        <span class="section__num">04 / Profiles</span>
+        <h2 class="section__title">Service <em>Profiles</em></h2>
+      </div>
+      <div class="section__meta">DEEP DIVE / PROS & CONS</div>
+    </div>
+
+    <div class="services-grid">
+      <!-- Meshy -->
+      <article class="svc-card fade-up">
+        <div class="svc-card__head">
+          <div>
+            <h3 class="svc-card__title">Meshy AI</h3>
+            <a href="https://www.meshy.ai" class="svc-card__url">meshy.ai →</a>
+          </div>
+          <div class="svc-card__price">
+            <div class="v">$36<span style="font-size: 0.8rem; color: var(--text-mute);">/mo</span></div>
+            <div class="l">Pro</div>
+          </div>
+        </div>
+        <div class="svc-card__body">
+          <p class="svc-card__desc">Универсальный инструмент для игровых ассетов и быстрого прототипирования. Meshy 6/7 даёт наиболее стабильный результат «из коробки»</p>
+          <div class="svc-card__shots">
+            <div class="svc-shot"><img src="Meshy_Ai/На основе промт/Screenshot_35.png" alt=""></div>
+            <div class="svc-shot"><img src="Meshy_Ai/На основе реф/Screenshot_4k полигонов_.png" alt=""></div>
+          </div>
+          <div class="svc-proscons">
+            <div class="svc-pros">
+              <div class="label">Pros</div>
+              <ul>
+                <li class="li">SmartTopology для игр</li>
+                <li class="li">Анимирование</li>
+                <li class="li">Настройка полигонов</li>
+                <li class="li">Наличие ремеша, т.е. можно уменьшить полигонаж создаваемой модели</li>
+                <li class="li">Можно "Развернуть Ui"</li>
+                <li class="li">Редактор текстуры</li>
+                <li class="li">Ретекстурирование</li>
+              </ul>
+            </div>
+            <div class="svc-cons">
+              <div class="label">Cons</div>
+              <ul>
+                <li>Плохое качество с ограничением по полигонам</li>
+                <li>В бесплатной версии нельзя скачать модель</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Lychee -->
+      <article class="svc-card fade-up">
+        <div class="svc-card__head">
+          <div>
+            <h3 class="svc-card__title">Lychee</h3>
+            <a href="https://3dgen.lychee.co" class="svc-card__url">lychee.co →</a>
+          </div>
+          <div class="svc-card__price">
+            <div class="v">$10<span style="font-size: 0.8rem; color: var(--text-mute);">/mo</span></div>
+            <div class="l">Premium</div>
+          </div>
+        </div>
+        <div class="svc-card__body">
+          <p class="svc-card__desc">Премиальный сервис с фокусом на высокое качество геометрии. Идеален для концепт-дизайна. Основное назначение - 3Д печать</p>
+          <div class="svc-card__shots">
+            <div class="svc-shot"><img src="lychee/На основе реф/Screenshot_33.png" alt=""></div>
+          </div>
+          <div class="svc-proscons">
+            <div class="svc-pros">
+              <div class="label">Pros</div>
+              <ul>
+                <li class="li">Низкая стоимость</li>
+                <li class="li">Высокое качество модели</li>
+              </ul>
+            </div>
+            <div class="svc-cons">
+              <div class="label">Cons</div>
+              <ul>
+                <li>Высокая полигоналость</li>
+                <li>Нет доп. настроек</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Tripo -->
+      <article class="svc-card fade-up">
+        <div class="svc-card__head">
+          <div>
+            <h3 class="svc-card__title">Tripo3D</h3>
+            <a href="https://studio.tripo3d.ai" class="svc-card__url">tripo3d.ai →</a>
+          </div>
+          <div class="svc-card__price">
+            <div class="v">$13<span style="font-size: 0.8rem; color: var(--text-mute);">/mo</span></div>
+            <div class="l">Pro</div>
+          </div>
+        </div>
+        <div class="svc-card__body">
+          <p class="svc-card__desc">Самый лучший для стилизованных персонажей и мультяшных ассетов.</p>
+          <div class="svc-card__shots">
+            <div class="svc-shot"><img src="Tripo3D/На основе реф/Screenshot_34.png" alt=""></div>
+            <div class="svc-shot"><img src="Tripo3D/На основе реф/Screenshot_LowPoly.png" alt=""></div>
+          </div>
+          <div class="svc-proscons">
+            <div class="svc-pros">
+              <div class="label">Pros</div>
+              <ul>
+                <li class="li">Можно пересоздавать выделенные области</li>
+                <li class="li">Есть функционал по сегментации</li>
+                <li class="li">Есть ремеш</li>
+                <li class="li">Есть SmartMesh 2.0 (чистая топология для Игр и веба)</li>
+                <li class="li">Есть ригинг</li>
+              </ul>
+            </div>
+            <div class="svc-cons">
+              <div class="label">Cons</div>
+              <ul>
+                <li>Артефакты и «плывущая» геометрия на сложных и тонких деталях"</li>
+                <li>Плохо справляется с симметрией, лицами и руками персонажей</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Hunyuan3D -->
+      <article class="svc-card fade-up">
+        <div class="svc-card__head">
+          <div>
+            <h3 class="svc-card__title">Hunyuan3D</h3>
+            <a href="https://3d.hunyuan.tencent.com/" class="svc-card__url">Hunyuan3D →</a>
+          </div>
+          <div class="svc-card__price">
+            <div class="v">Free</div>
+          </div>
+        </div>
+        <div class="svc-card__body">
+          <p class="svc-card__desc">Открытая ИИ-система для генерации 3D-моделей от компании Tencent, поддерживает генерацию с текстурами и PBR-материалами, а также славится тем, что её можно запускать локально (в отличие от многих закрытых облачных сервисов). Это одно из самых сильных open-source решений в области текст-в-3D и image-to-3D, ориентированное на разработчиков, исследователей и энтузиастов 3D-печати и геймдева.</p>
+          <div class="svc-card__shots">
+            <div class="svc-shot"><img src="Hunyuan3D/На основе промт/Screenshot_33.png" alt=""></div>
+            <div class="svc-shot"><img src="Hunyuan3D/На основе реф/Screenshot_33.png" alt=""></div>
+          </div>
+          <div class="svc-proscons">
+            <div class="svc-pros">
+              <div class="label">Pros</div>
+              <ul>
+                <li class="li">Бесплатный</li>
+                <li class="li">Генерация качественных PBR-текстур</li>
+                <li class="li">Высокое качество геометрии</li>
+              </ul>
+            </div>
+            <div class="svc-cons">
+              <div class="label">Cons</div>
+              <ul>
+                <li>Минимальный доступный полигонаж = 50К</li>
+                <li>Слабо справляется с лицами, руками и симметрией персонажей</li>
+                <li>Мелкие детали часто теряются или деформируются</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ RESEARCH Q&A ============ -->
+  <section class="section" id="research">
+    <div class="section__head fade-up">
+      <div class="section__title-block">
+        <span class="section__num">05 / Research</span>
+        <h2 class="section__title">Questions & <em>Answers</em></h2>
+      </div>
+      <div class="section__meta">POSTANOВКА ЗАДАЧИ / РЕЗУЛЬТАТЫ</div>
+    </div>
+
+    <div class="qa-grid">
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q1 / ПОЛИГОНАЖ</div>
+        <h3 class="qa-card__q">Какой сервис выдает самую точную геометрию по референсу, и можно ли ее использовать сразу?</h3>
+        <p class="qa-card__a">
+          <strong>Lychee, Hunyuan3D и Hyper3D</strong> показали наилучшее попадание в референс (10/10). Они точно повторяют форму ствола, шарнира и рукояти. Однако это достигается за счет огромного полигонажа (от 50k до 1.9 млн полигонов), что делает их непригодными для реального времени без агрессивной ручной ретопологии.
+        </p>
+      </div>
+
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q2 / UNITY READY</div>
+        <h3 class="qa-card__q">Какие сервисы выдают готовые для Unity (WebGL) ассеты "из коробки"?</h3>
+        <p class="qa-card__a">
+          Только <strong>Meshy AI и Tripo3D</strong>. Они имеют встроенные алгоритмы ремеша (SmartTopology / SmartMesh 2.0), позволяют задавать лимит полигонов (до 100-500) и выдают чистую quad-топологию. Остальные сервисы требуют обязательной конвертации и ретопологии перед импортом в игровой движок.
+        </p>
+      </div>
+
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q3 / LOW-POLY</div>
+        <h3 class="qa-card__q">Можно ли получить качественную модель в низком полигонаже (LowPoly) без ручной ретопологии?</h3>
+        <p class="qa-card__a">
+          <strong>Tripo3D</strong> справляется с этим лучше всего благодаря функции SmartMesh 2.0. <strong>Meshy AI</strong> также позволяет уменьшать полигонаж, но при экстремально низких значениях (до 100 полигонов) сильно страдает детализация и форма ствола. Hunyuan3D физически не позволяет опускаться ниже 50 000 полигонов.
+        </p>
+      </div>
+
+      <div class="qa-card fade-up">
+        <div class="qa-card__icon">Q4 / ЦЕНА</div>
+        <h3 class="qa-card__q">Какой сервис предоставляет лучшее соотношение цены и качества?</h3>
+        <p class="qa-card__a">
+          Для концепт-арта и 3D-печати однозначный лидер — <strong>Hunyuan3D</strong> (полностью бесплатно, отличное качество). Для геймдева и коммерческой разработки ассетов оптимальны <strong>Tripo3D ($13/мес)</strong> и <strong>Lychee ($10/мес)</strong> — они дают необходимый набор инструментов (ремеш, риггинг, сегментация) по минимальной цене на рынке.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MAIN VERDICT ============ -->
+  <section class="section" id="verdict">
+    <div class="verdict-block fade-up">
+      <span class="section__num">06 / Verdict</span>
+      <h2 class="verdict-block__title">Главный <em>вывод</em> исследования</h2>
+      <div class="verdict-block__text">
+        <p>
+          Универсального ИИ-генератора 3D-моделей, одинаково хорошо справляющегося со всеми задачами, на данный момент не существует. 
+        </p>
+        
+        <span class="hi">→ Для геймдева и Unity (WebGL):</span>
+        <p>
+          Подходит <strong>Tripo3D</strong> или <strong>Meshy AI</strong>. Они позволяют генерировать модели с контролем полигонажа и готовы к импорту в движок "из коробки", не требуя ручной ретопологии. Tripo3D предпочтительнее для стилизованных ассетов, Meshy — для хард-серфейса.
+        </p>
+
+        <span class="hi">→ Для концепт-дизайна, 3D-печати и референсов:</span>
+        <p>
+          Подходит <strong>Lychee</strong> или <strong>Hunyuan3D</strong>. Они дают идеальную точность и высокое качество геометрии/текстур, пренебрегая оптимизацией под реальные рендеры в реальном времени. Hunyuan3D при этом абсолютно бесплатен и имеет настройку лимита по минимальному полигонажу.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__copy">
+      © 2024 3D_AI_LAB / BENCHMARK_STATION
+    </div>
+    <div class="footer__links">
+      <a href="#">Documentation</a>
+      <a href="#">API</a>
+      <a href="#">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  // ============ DATA ============
+  const serviceData = {
+    Hunyuan3D: {
+      assetName: 'hunyuan_pistol',
+      format: 'obj',
+      genTime: '58s',
+      render: 'Hunyuan3D/На основе реф/Screenshot_33.png',
+      unity: { status: 'Конвертация', label: 'Требуется конвертация', sub: 'Требуется уменьшение полигонов т.к. мин. 50к' },
+      specs: { polys: '30 582', topo: 'Quads', uv: 'Yes / Poor', tex: '2K/4K', rig: 'None', exp: 'FBX, GLB, OBJ' },
+      scores: { unity: 7, ref: 8, art: 7, tex: 8 }
+    },
+    Hyper3D_Ai: {
+      assetName: 'hyper_pistol',
+      format: 'obj',
+      genTime: '118s',
+      render: 'Hyper3D_Ai/На основе реф/Screenshot_34.png',
+      unity: { status: 'Конвертация', label: 'Требуется конвертация', sub: 'Требуется уменьшение полигонов' },
+      specs: { polys: '1 200 000', topo: 'Quads', uv: 'Yes / Poor', tex: '2K/4K/8k', rig: 'None', exp: 'FBX, GLB, OBJ' },
+      scores: { unity: 2, ref: 8, art: 9, tex: 7 }
+    },
+    Lychee: {
+      assetName: 'lychee_pistol',
+      format: 'GLB',
+      genTime: '28s',
+      render: 'lychee/На основе реф/Screenshot_33.png',
+      unity: { status: 'Конвертация', label: 'Требуется конвертация', sub: 'Требуется уменьшение полигонов' },
+      specs: { polys: '1 935 432', topo: 'Tris', uv: 'Yes / Good', tex: '2K/4K/8k', rig: 'None', exp: 'FBX, GLB, OBJ' },
+      scores: { unity: 2, ref: 10, art: 10, tex: 8 }
+    },
+    Meshy_Ai: {
+      assetName: 'meshy_pistol',
+      format: '-',
+      genTime: '88s',
+      render: 'Meshy_Ai/На основе реф/Screenshot_35.png',
+      unity: { status: 'ready', label: 'Ready for Unity', sub: 'PBR materials calibrated' },
+      specs: { polys: '5 100', topo: 'Quads/Tris', uv: 'Yes / Poor', tex: '2K/4K/8k', rig: 'Yes', exp: 'FBX, GLB, OBJ' },
+      scores: { unity: 8, ref: 7, art: 6, tex: 6 }
+    },
+    Tripo3D: {
+      assetName: 'tripo_pistol',
+      format: '-',
+      genTime: '0.4s',
+      render: 'Tripo3D/На основе реф/Screenshot_33.png',
+      unity: { status: 'ready', label: 'Ready for Unity', sub: 'Baked textures' },
+      specs: { polys: '5 000', topo: 'Quads/Tris', uv: 'Yes / Poor', tex: '2K/4K/8k', rig: 'Yes', exp: 'FBX, GLB, OBJ' },
+      scores: { unity: 9, ref: 8, art: 7, tex: 6 }
+    }
+  };
+
+  // ============ TABS LOGIC ============
+  const tabs = document.querySelectorAll('.tab');
+  const viewerRender = document.getElementById('viewerRender');
+  const metricsPanel = document.getElementById('metricsPanel');
+  const unityBadge = document.getElementById('unityBadge');
+
+  function updateService(key) {
+    const data = serviceData[key];
+    if (!data) return;
+
+    // Fade out
+    viewerRender.classList.add('changing');
+    metricsPanel.classList.add('changing');
+
+    setTimeout(() => {
+      // Update Viewer
+      viewerRender.src = data.render;
+      document.getElementById('assetName').textContent = data.assetName;
+      document.getElementById('assetFormat').textContent = data.format;
+      document.getElementById('genTime').textContent = data.genTime;
+
+      // Update Unity Badge
+      if (data.unity.status === 'ready') {
+        unityBadge.className = 'metrics__unity-badge ready';
+        unityBadge.querySelector('.unity-icon').textContent = '✓';
+      } else {
+        unityBadge.className = 'metrics__unity-badge convert';
+        unityBadge.querySelector('.unity-icon').textContent = '!';
+      }
+      document.getElementById('unityStatus').textContent = data.unity.label;
+      document.getElementById('unitySub').textContent = data.unity.sub;
+
+      // Update Specs
+      document.getElementById('specPolys').textContent = data.specs.polys;
+      document.getElementById('specTopo').textContent = data.specs.topo;
+      document.getElementById('specUV').textContent = data.specs.uv;
+      document.getElementById('specTex').textContent = data.specs.tex;
+      document.getElementById('specRig').textContent = data.specs.rig;
+      document.getElementById('specExp').textContent = data.specs.exp;
+
+      // Update Scores
+      document.getElementById('scoreUnityVal').innerHTML = data.scores.unity + '<span>/10</span>';
+      document.getElementById('scoreRefVal').innerHTML = data.scores.ref + '<span>/10</span>';
+      document.getElementById('scoreArtVal').innerHTML = data.scores.art + '<span>/10</span>';
+      document.getElementById('scoreTexVal').innerHTML = data.scores.tex + '<span>/10</span>';
+      
+      // Reset bars to 0 then animate
+      const bars = ['scoreUnityBar', 'scoreRefBar', 'scoreArtBar', 'scoreTexBar'];
+      const vals = [data.scores.unity, data.scores.ref, data.scores.art, data.scores.tex];
+      
+      bars.forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.style.width = '0%';
+        setTimeout(() => {
+          el.style.width = (vals[i] * 10) + '%';
+          el.className = 'score-fill' + (vals[i] < 5 ? ' danger' : vals[i] < 8 ? ' warn' : '');
+        }, 50);
+      });
+
+      // Fade in
+      viewerRender.classList.remove('changing');
+      metricsPanel.classList.remove('changing');
+    }, 300);
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      updateService(tab.dataset.service);
+    });
+  });
+
+  // ============ GSAP ANIMATIONS ============
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Fade up utility elements
+  gsap.utils.toArray('.fade-up').forEach(el => {
+    gsap.fromTo(el, 
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1, y: 0,
+        duration: 1.2,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+
+  // Hero specific animations on load
+  gsap.fromTo('.hero__eyebrow', 
+    { opacity: 0, x: -20 },
+    { opacity: 1, x: 0, duration: 1, delay: 0.2, ease: 'power3.out' }
+  );
+  
+  gsap.fromTo('.hero__title', 
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: 1.2, delay: 0.4, ease: 'power3.out' }
+  );
+
+  // Initialize first score bars
+  /*setTimeout(() => {
+    const data = serviceData['Hunyuan3D'];
+    document.getElementById('scoreUnityBar').style.width = (data.scores.unity * 10) + '%';
+    document.getElementById('scoreRefBar').style.width = (data.scores.ref * 10) + '%';
+    document.getElementById('scoreArtBar').style.width = (data.scores.art * 10) + '%';
+    document.getElementById('scoreTexBar').style.width = (data.scores.tex * 10) + '%';
+    
+  }, 500);*/
+updateService('Hunyuan3D');
+})();
+</script>
+
+</body>
+</html>
