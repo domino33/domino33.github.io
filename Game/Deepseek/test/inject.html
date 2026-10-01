@@ -1,0 +1,44 @@
+<script>
+window.__errs = [];
+window.onerror = function (m, s, l) { window.__errs.push(m + ' @' + l); };
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    var out = { ok: false, errors: window.__errs.slice(), notes: [] };
+    try {
+      var T = window.TREN;
+      out.notes.push('sceneChildren:' + T.scene.children.length);
+      out.notes.push('interact:' + T.world.interactables.length);
+      out.notes.push('colliders:' + T.world.colliders.length);
+      out.notes.push('renderCalls:' + T.renderer.info.render.calls);
+      var g = T.game, w = T.world, pl = T.player;
+      ['ppe_helmet', 'ppe_goggles', 'ppe_suit', 'ppe_kraga'].forEach(function (id) { g.interact(w.getInteractable(id)); });
+      out.notes.push('ppeComplete:' + g.ppeComplete());
+      g.interact(w.getInteractable('case_lid'));
+      g.interact(w.getInteractable('gun_inspect'));
+      g.interact(w.getInteractable('cart_in_barrel'));
+      g.interact(w.getInteractable('ammo_cartridges'));
+      g.interact(w.getInteractable('ammo_dowels'));
+      g.interact(w.getInteractable('gun_take'));
+      out.notes.push('gunInHands:' + g.state.gun.inHands);
+      pl.pos.set(-8, 0, 0);
+      g.update(0.016);
+      out.notes.push('arrived:' + g.state.site.arrived);
+      g.interact(w.getInteractable('fence_stack'));
+      g.interact(w.getInteractable('worker_1'));
+      g.interact(w.getInteractable('worker_2'));
+      g.interact(w.getInteractable('scaffold'));
+      for (var i = 0; i < 60; i++) pl.update(0.016, w.colliders);
+      out.notes.push('scaffoldY:' + pl.pos.y.toFixed(2));
+      out.notes.push('task:' + document.getElementById('task-title').textContent);
+      out.notes.push('statusLen:' + document.getElementById('status-list').innerHTML.length);
+      out.notes.push('logLen:' + document.getElementById('log').childNodes.length);
+      out.ok = true;
+    } catch (e) { out.errors.push('EXC: ' + e.message); }
+    document.title = out.ok ? 'BROWSER-OK' : 'BROWSER-FAIL';
+    var d = document.createElement('div');
+    d.id = 'test-result';
+    d.textContent = JSON.stringify(out);
+    document.body.appendChild(d);
+  }, 1500);
+});
+</script>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Тренажёр: пиротехнический монтажный пистолет</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <!-- ======================= HUD ======================= -->
+  <div id="hud">
+    <div id="crosshair"><span class="ch-dot"></span></div>
+
+    <div id="task-panel" class="panel">
+      <div class="panel-title">ЗАДАНИЕ</div>
+      <div id="task-stage" class="stage-line">Этап 1. Подготовка работ</div>
+      <div id="task-title" class="task-line">Получение СИЗ</div>
+      <div id="task-hint" class="hint-line"></div>
+      <div id="task-req" class="req-line"></div>
+      <div id="target-info" class="target-line"></div>
+    </div>
+
+    <div id="status-panel" class="panel">
+      <div class="panel-title">СОСТОЯНИЕ</div>
+      <div id="status-list"></div>
+    </div>
+
+    <div id="prompt"></div>
+    <div id="log"></div>
+    <div id="timer"></div>
+  </div>
+
+  <!-- ==================== Заряжание ==================== -->
+  <div id="load-panel" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-title">ЗАРЯЖАНИЕ ПИСТОЛЕТА</div>
+      <div class="modal-sub">Порядок: сначала дюбель в ствол, затем патрон</div>
+      <div class="load-row" id="load-dowel-row">
+        <button class="btn" data-action="dowel">Вставить дюбель в ствол</button>
+        <span id="load-dowel-state" class="load-state"></span>
+      </div>
+      <div class="load-row cart-row">
+        <button class="btn cart c-yellow" data-action="cart-yellow">1. Жёлтый<br><small>слабый</small></button>
+        <button class="btn cart c-green" data-action="cart-green">2. Зелёный<br><small>средний</small></button>
+        <button class="btn cart c-red" data-action="cart-red">3. Красный<br><small>сильный</small></button>
+        <button class="btn cart c-black" data-action="cart-black">4. Чёрный<br><small>очень сильный</small></button>
+      </div>
+      <div class="modal-foot">
+        <span id="load-info"></span>
+        <button class="btn small" data-action="close">Закрыть (Q)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Справка ==================== -->
+  <div id="help-panel" class="modal hidden">
+    <div class="modal-box wide">
+      <div class="modal-title">СЦЕНАРИЙ ТРЕНАЖЁРА (по инструкции)</div>
+      <div id="help-body"></div>
+      <div class="modal-foot"><button class="btn small" data-action="close-help">Закрыть (H)</button></div>
+    </div>
+  </div>
+
+  <!-- ==================== Старт ==================== -->
+  <div id="start-overlay" class="overlay">
+    <div class="overlay-box">
+      <h1>Тренажёр: пиротехнический монтажный пистолет</h1>
+      <p class="sub">Сцена собрана из примитивов Three.js. Пройдите тренажёр целиком — от получения СИЗ на складе до сдачи инструмента.</p>
+      <div class="controls">
+        <div><b>W A S D</b> — движение</div>
+        <div><b>Shift</b> — бег, <b>Пробел</b> — прыжок</div>
+        <div><b>Мышь</b> — обзор, <b>ЛКМ / E</b> — действие (взять, выставить ограждение, убрать людей, выстрел)</div>
+        <div><b>Q</b> — заряжание пистолета</div>
+        <div><b>R</b> — переломить пистолет / извлечь гильзу</div>
+        <div><b>1..4</b> — выбор патрона, <b>H</b> — справка по сценарию, <b>Esc</b> — курсор</div>
+      </div>
+      <p class="warn">Ошибки приводят к травмам и ФИАСКО — как в реальной инструкции.</p>
+      <button id="btn-start" class="btn big">НАЧАТЬ РАБОТУ</button>
+    </div>
+  </div>
+
+  <!-- ==================== Итог / ФИАСКО ==================== -->
+  <div id="end-overlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h1 id="end-title">ФИАСКО</h1>
+      <div id="end-reason" class="end-reason"></div>
+      <div id="end-stats" class="end-stats"></div>
+      <div id="end-list" class="end-list"></div>
+      <button id="btn-restart" class="btn big">ПРОЙТИ ЗАНОВО</button>
+    </div>
+  </div>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="src/scenario.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="src/world.js"></script>
+  <script src="src/player.js"></script>
+  <script src="src/game.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
