@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тренажёр — пиротехнический монтажный пистолет</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- ================= HUD ================= -->
+<div id="hud">
+  <div id="tasks" class="panel"></div>
+  <div id="status" class="panel"></div>
+  <div id="cross"></div>
+  <div id="prompt"></div>
+  <div id="toasts"></div>
+
+  <div id="mf" class="hidden">
+    ОСЕЧКА! ДЕРЖИТЕ ИНСТРУМЕНТ ПРИЖАТЫМ К СТЕНЕ<br>
+    до разрядки: <b id="mfT">60</b> с
+  </div>
+
+  <div id="carts" class="hidden">
+    <h3>ВЫБЕРИТЕ ПАТРОН</h3>
+    <div class="sub" id="cartSub">Стена: силикатный кирпич.</div>
+    <div class="crow"><div class="ic" style="background:#e8c832"></div><div>Жёлтый — слабый</div><div class="key">1</div></div>
+    <div class="crow"><div class="ic" style="background:#35a34a"></div><div>Зелёный — средний</div><div class="key">2</div></div>
+    <div class="crow"><div class="ic" style="background:#cf3526"></div><div>Красный — сильный</div><div class="key">3</div></div>
+    <div class="crow"><div class="ic" style="background:#232323"></div><div>Чёрный — максимальный</div><div class="key">4</div></div>
+    <div class="sub" style="margin-top:8px">Q — отмена</div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="ovHat" class="hidden"></div>
+  <div id="ovGlasses" class="hidden"></div>
+  <div id="ovMask" class="hidden"></div>
+</div>
+
+<div id="ctrl">WASD — движение · мышь — осмотр · E/ЛКМ — действие и выстрел · R — переломить · X — пистолет↔кейс · F — кейс · 1 — дюбель · 2 — патрон · G — бросить · ESC — пауза</div>
+
+<!-- ================= ОВЕРЛЕИ ================= -->
+<div id="intro" class="ov"><div class="card">
+  <h1>ПИРОТЕХНИЧЕСКИЙ МОНТАЖНЫЙ ПИСТОЛЕТ</h1>
+  <h2>ТРЕНАЖЁР ПО ОХРАНЕ ТРУДА · ПРИСТРЕЛОЧНЫЕ РАБОТЫ</h2>
+  <p><b>Задача:</b> получить на складе СИЗ и инструмент, осмотреть пистолет, подготовить место работ (ограждение, люди, подмости) и пристрелить два кронштейна к стене из силикатного кирпича — по два дюбеля на каждый. Затем правильно завершить работы и сдать инструмент, гильзы и патрон с осечкой.</p>
+  <p>Все нарушения (работа без СИЗ, наведение на людей, заряжание до подготовки места, избыточная мощность патрона, неправильные действия при осечке…) приводят к смоделированным последствиям и завершению попытки.</p>
+  <div class="ctl">
+    <div><b>WASD</b>движение, <b>SHIFT</b>бег</div><div><b>мышь</b>осмотр</div>
+    <div><b>E / ЛКМ</b>действие, выстрел</div><div><b>R</b>переломить / закрыть</div>
+    <div><b>X</b>пистолет ↔ кейс</div><div><b>F</b>взять / положить кейс</div>
+    <div><b>1</b>дюбель в ствол</div><div><b>2</b>патрон (выбор 1–4)</div>
+    <div><b>G</b>бросить предмет</div><div><b>ESC</b>пауза</div>
+  </div>
+  <button class="btn" id="introBtn">НАЧАТЬ ТРЕНИРОВКУ</button>
+</div></div>
+
+<div id="pause" class="ov hidden"><div class="card" style="text-align:center">
+  <h1>ПАУЗА</h1><button class="btn" id="resumeBtn">ПРОДОЛЖИТЬ</button>
+</div></div>
+
+<div id="fail" class="ov hidden"><div class="card">
+  <h1 id="failT">ФИАСКО</h1>
+  <p id="failM"></p>
+  <p id="failTip" style="color:#ffb400"></p>
+  <button class="btn" onclick="location.reload()">НАЧАТЬ ЗАНОВО</button>
+</div></div>
+
+<div id="win" class="ov hidden"><div class="card">
+  <h1>РАБОТЫ ЗАВЕРШЕНЫ</h1>
+  <h2>ИНСТРУМЕНТ, ГИЛЬЗЫ И ПАТРОН С ОСЕЧКОЙ СДАНЫ НА СКЛАД</h2>
+  <p id="winStats"></p>
+  <p>Замечания инструктора:</p>
+  <p id="winRems"></p>
+  <p>Оценка: <b id="winGrade" style="color:#ffb400"></b></p>
+  <button class="btn" onclick="location.reload()">ПРОЙТИ ЕЩЁ РАЗ</button>
+</div></div>
+
+<!-- ================= ПОДКЛЮЧЕНИЕ (порядок важен!) ================= -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/state.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/npc.js"></script>
+<script src="js/world_warehouse.js"></script>
+<script src="js/world_site.js"></script>
+<script src="js/pistol.js"></script>
+<script src="js/player.js"></script>
+<script src="js/main.js"></script>
+  <script src="vendor/three.min.js"></script>
+</body>
+</html>
